@@ -4,17 +4,32 @@ from torch import nn
 
 def nls_prob_dist(logt0, A, w, logt1, n, logt):
     F = (A / torch.pi) * (w / ((logt0 - logt1) ** 2 + w**2))
-    return (1 - torch.e ** (-((10**logt / (10 ** (logt0))) ** n))) * F
+    return (1 - torch.e ** (-((10**logt / (10**logt0)) ** n))) * F
 
 
-def nls(logt, A, w, logt1, n, lower_bound, upper_bound, n_samples):
-    logt0 = torch.linspace(lower_bound, upper_bound, n_samples)
+def nls(logt, A, w, logt1, n, l_bd, u_bd, itg_samples):
+    logt0 = torch.linspace(l_bd, u_bd, itg_samples)
 
     pd = nls_prob_dist(logt0, A, w, logt1, n, logt)
 
     itg = torch.trapz(pd, logt0)
 
     return itg
+
+
+class BridgeNet(nn.Module):
+    def __init__(self):
+        super(BridgeNet, self).__init__()
+        self.net = nn.Sequential(
+            nn.Linear(1, 10),
+            nn.Sigmoid(),
+            nn.Linear(10, 10),
+            nn.Sigmoid(),
+            nn.Linear(10, 1),
+        )
+
+    def forward(self, x):
+        return self.net(x)
 
 
 class NLSModel(nn.Module):
@@ -25,56 +40,17 @@ class NLSModel(nn.Module):
         self.itg_samples = itg_samples
 
         self.n_net = nn.Sequential(
-            nn.Linear(1, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 1),
+            BridgeNet(),
+            nn.Softplus(),
         )
         self.w_net = nn.Sequential(
-            nn.Linear(1, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 1),
+            BridgeNet(),
+            nn.Softplus(),
         )
-        self.logt1_net = nn.Sequential(
-            nn.Linear(1, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 1),
-        )
+        self.logt1_net = BridgeNet()
         self.A_net = nn.Sequential(
-            nn.Linear(1, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 10),
-            nn.ReLU(),
-            nn.Linear(10, 1),
+            BridgeNet(),
+            nn.Sigmoid(),
         )
 
     def forward(
@@ -108,16 +84,18 @@ class NLSModel(nn.Module):
             )
         )
 
-    def compute_avg_bride_parameters(self, v: torch.Tensor):
+    def bridge_params(self, v: torch.Tensor):
+        import pandas as pd
+
         with torch.no_grad():
-            A = self.A_net(v)
-            w = self.w_net(v)
-            logt1 = self.logt1_net(v)
-            n = self.n_net(v)
+            A = self.A_net(v).reshape((-1,)).tolist()
+            w = self.w_net(v).reshape((-1,)).tolist()
+            logt1 = self.logt1_net(v).reshape((-1,)).tolist()
+            n = self.n_net(v).reshape((-1,)).tolist()
+            v = v.reshape((-1,)).tolist()
 
-            avg_A = torch.mean(A).item()
-            avg_w = torch.mean(w).item()
-            avg_logt1 = torch.mean(logt1).item()
-            avg_n = torch.mean(n).item()
+        rows = zip(v, A, w, logt1, n)
+        cols = ["v", "A", "w", "logt1", "n"]
+        df = pd.DataFrame(rows, columns=cols)
 
-        return (avg_n, avg_w, avg_logt1, avg_A)
+        return df

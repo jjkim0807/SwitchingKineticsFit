@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from src.model import NLSModel
 import matplotlib.pyplot as plt
+from torch.optim.lr_scheduler import StepLR
 
 
 class Train:
@@ -15,6 +16,8 @@ class Train:
         lr: float,
         epochs: int,
         batch_size: int,
+        steplr_step_size: int,
+        steplr_gamma: float,
         loss_plot_path: str,
     ):
         self.dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -26,6 +29,10 @@ class Train:
             itg_samples=itg_samples,
         )
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
+        self.scheduler = StepLR(
+            self.optimizer, step_size=steplr_step_size, gamma=steplr_gamma
+        )
+
         self.epochs = epochs
         self.loss_plot_path = loss_plot_path
 
@@ -47,6 +54,8 @@ class Train:
                 self.optimizer.step()  # Update the model parameters
 
                 running_loss += loss.item()
+
+            self.scheduler.step()
 
             # Calculate and print the average loss for the epoch
             epoch_loss = running_loss / len(self.dataloader)

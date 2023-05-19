@@ -31,19 +31,23 @@ class Eval:
             for inputs, targets in self.dataloader:
                 outputs = self.model(*inputs)
                 loss = self.criterion(outputs, targets)
-                test_loss += loss.item()
+                test_loss = loss.item()
 
                 log_time = torch.log10(inputs[0]).reshape((-1,)).tolist()
                 voltage = inputs[1].reshape((-1,)).tolist()
                 delta_p = targets.tolist()
                 pred_delta_p = outputs.tolist()
 
-                n, w, logt1, A = self.model.compute_avg_bride_parameters(inputs[1])
+                # since voltages has discrete values,
+                # find each values of voltages
+                # and find the corresponding bridge parameters for each voltage
 
-            # Calculate and print the average test loss
-            avg_test_loss = test_loss / len(self.dataloader)
-            print(f"Test Loss: {avg_test_loss:.4f}")
-            print(f"n: {n}, w: {w}, logt1: {logt1}, A: {A}")
+                discrete_voltages = torch.tensor(sorted(set(voltage))).reshape((-1, 1))
+                bridge_params = self.model.bridge_params(discrete_voltages)
+
+            print(f"Test Loss: {test_loss:.4f}")
+            print(f"Bridge Parameters: \n")
+            print(bridge_params)
 
         ax.scatter3D(log_time, voltage, delta_p, "gray", marker="o")
         ax.scatter3D(log_time, voltage, pred_delta_p, "red", marker="^")
