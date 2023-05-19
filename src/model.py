@@ -17,9 +17,9 @@ def nls(logt, A, w, logt1, n, l_bd, u_bd, itg_samples):
     return itg
 
 
-class BridgeNet(nn.Module):
+class FFNN(nn.Module):
     def __init__(self):
-        super(BridgeNet, self).__init__()
+        super(FFNN, self).__init__()
         self.net = nn.Sequential(
             nn.Linear(1, 10),
             nn.Sigmoid(),
@@ -40,16 +40,16 @@ class NLSModel(nn.Module):
         self.itg_samples = itg_samples
 
         self.n_net = nn.Sequential(
-            BridgeNet(),
+            FFNN(),
             nn.Softplus(),
         )
         self.w_net = nn.Sequential(
-            BridgeNet(),
+            FFNN(),
             nn.Softplus(),
         )
-        self.logt1_net = BridgeNet()
+        self.logt1_net = FFNN()
         self.A_net = nn.Sequential(
-            BridgeNet(),
+            FFNN(),
             nn.Sigmoid(),
         )
 
