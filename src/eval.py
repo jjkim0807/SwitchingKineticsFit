@@ -43,11 +43,12 @@ class Eval:
                 # and find the corresponding bridge parameters for each voltage
 
                 discrete_voltages = torch.tensor(sorted(set(voltage))).reshape((-1, 1))
-                bridge_params = self.model.bridge_params(discrete_voltages)
+                bridge_params, E0 = self.model.bridge_params(discrete_voltages)
 
             print(f"Test Loss: {test_loss:.4f}")
             print(f"Bridge Parameters: \n")
             print(bridge_params)
+            print(f"E0: {E0}")
 
         ax.scatter3D(log_time, voltage, delta_p, "gray", marker="o")
         ax.scatter3D(log_time, voltage, pred_delta_p, "red", marker="^")

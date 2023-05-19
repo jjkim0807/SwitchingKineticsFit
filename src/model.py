@@ -47,7 +47,7 @@ class NLSModel(nn.Module):
             FFNN(),
             nn.Softplus(),
         )
-        self.logt1_net = FFNN()
+        self.logt1_net = nn.Linear(1, 1)
         self.A_net = nn.Sequential(
             FFNN(),
             nn.Sigmoid(),
@@ -94,8 +94,10 @@ class NLSModel(nn.Module):
             n = self.n_net(v).reshape((-1,)).tolist()
             v = v.reshape((-1,)).tolist()
 
+        E0 = self.logt1_net.state_dict()["weight"].item()
+
         rows = zip(v, A, w, logt1, n)
         cols = ["v", "A", "w", "logt1", "n"]
         df = pd.DataFrame(rows, columns=cols)
 
-        return df
+        return df, E0
