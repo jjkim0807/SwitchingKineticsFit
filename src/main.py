@@ -11,21 +11,22 @@ class Main:
 
     def run(
         self,
-        data_path: str = "data/normalized_001HZO.xlsx",
+        data_path: str = "data/TiN SK",
         graph_plot_path: str = "output/graph_plot.png",
         loss_plot_path: str = "output/loss_plot.png",
-        ps: float = 0.5,
+        ps: float = 19,
+        d: float = 240.2,
         itg_window=14,
         itg_samples=10000,
         epochs: int = 1000,
         batch_size: int = 30,
         steplr_step_size: int = 50,
         steplr_gamma: float = 0.9,
-        lr: float = 0.01,
+        lr: float = 0.1,
     ):
         torch.set_default_dtype(torch.float64)
 
-        ds = SwitchingKineticsDataset(data_path)
+        ds = SwitchingKineticsDataset(data_path=data_path, d=d)
 
         train = Train(
             ds,
