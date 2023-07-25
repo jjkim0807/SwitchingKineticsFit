@@ -1,8 +1,8 @@
 import torch
+
 from src.dataset import SwitchingKineticsDataset
 from src.eval import Eval
 from src.train import Train
-import fire
 
 
 class Main:
@@ -45,7 +45,3 @@ class Main:
             graph_plot_path=graph_plot_path,
         )
         eval.run()
-
-
-if __name__ == "__main__":
-    fire.Fire(Main)
