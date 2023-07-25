@@ -11,11 +11,9 @@ class Main:
 
     def run(
         self,
-        data_path: str = "data/TiN SK",
+        data_path: str = "data/Mo SK",
         graph_plot_path: str = "output/graph_plot.png",
         loss_plot_path: str = "output/loss_plot.png",
-        ps: float = 19,
-        d: float = 240.2,
         itg_window=14,
         itg_samples=10000,
         epochs: int = 1000,
@@ -26,11 +24,10 @@ class Main:
     ):
         torch.set_default_dtype(torch.float64)
 
-        ds = SwitchingKineticsDataset(data_path=data_path, d=d)
+        ds = SwitchingKineticsDataset(data_path=data_path)
 
         train = Train(
             ds,
-            ps=ps,
             lr=lr,
             itg_window=itg_window,
             itg_samples=itg_samples,

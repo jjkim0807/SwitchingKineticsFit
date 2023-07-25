@@ -33,9 +33,8 @@ class FFNN(nn.Module):
 
 
 class NLSModel(nn.Module):
-    def __init__(self, ps, itg_window, itg_samples):
+    def __init__(self, itg_window, itg_samples):
         super(NLSModel, self).__init__()
-        self.ps = ps
         self.itg_window = itg_window
         self.itg_samples = itg_samples
 
@@ -71,19 +70,15 @@ class NLSModel(nn.Module):
         upper_bound = torch.mean(logt1).item() + self.itg_window
         itg_samples = self.itg_samples
 
-        return (
-            2
-            * self.ps
-            * nls(
-                torch.log10(t),
-                A,
-                w,
-                logt1,
-                n,
-                lower_bound,
-                upper_bound,
-                itg_samples,
-            )
+        return nls(
+            torch.log10(t),
+            A,
+            w,
+            logt1,
+            n,
+            lower_bound,
+            upper_bound,
+            itg_samples,
         )
 
     def bridge_params(self, v: torch.Tensor):

@@ -54,5 +54,5 @@ class Eval:
 
         ax.set_xlabel("log(time)")
         ax.set_ylabel("voltage")
-        ax.set_zlabel("delta P(t)")
+        ax.set_zlabel("delta P(t) / 2Ps")
         plt.savefig(self.graph_plot_path)
