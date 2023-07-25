@@ -11,7 +11,7 @@ class Main:
 
     def run(
         self,
-        data_path: str = "data/Mo SK",
+        data_path: str = "data",
         graph_plot_path: str = "output/graph_plot.png",
         loss_plot_path: str = "output/loss_plot.png",
         itg_window=14,
