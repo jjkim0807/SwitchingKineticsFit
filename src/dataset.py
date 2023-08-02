@@ -22,6 +22,8 @@ class SwitchingKineticsDataset(Dataset):
         for file in Path(data_path).iterdir():
             if "hysteresis" in file.name or "pund" in file.name:
                 continue
+            if ".DS_Store" in file.name:
+                continue
 
             voltage = file.name.split(" ")[4]
             voltage = float(voltage[:-1].replace("_", "."))

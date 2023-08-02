@@ -10,6 +10,7 @@ class Train:
     def __init__(
         self,
         dataset: Dataset,
+        n: int,
         itg_window: float,
         itg_samples: int,
         lr: float,
@@ -23,6 +24,7 @@ class Train:
 
         self.criterion = nn.MSELoss()
         self.model = NLSModel(
+            n=n,
             itg_window=itg_window,
             itg_samples=itg_samples,
         )

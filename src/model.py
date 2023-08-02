@@ -33,15 +33,12 @@ class FFNN(nn.Module):
 
 
 class NLSModel(nn.Module):
-    def __init__(self, itg_window, itg_samples):
+    def __init__(self, n, itg_window, itg_samples):
         super(NLSModel, self).__init__()
+        self.n = n
         self.itg_window = itg_window
         self.itg_samples = itg_samples
 
-        self.n_net = nn.Sequential(
-            FFNN(),
-            nn.Softplus(),
-        )
         self.w_net = nn.Sequential(
             FFNN(),
             nn.Softplus(),
@@ -63,7 +60,7 @@ class NLSModel(nn.Module):
         A = self.A_net(v)
         w = self.w_net(v)
         logt1 = self.logt1_net(v)
-        n = self.n_net(v)
+        n = self.n
 
         # set up integration points
         lower_bound = torch.mean(logt1).item() - self.itg_window
@@ -88,11 +85,10 @@ class NLSModel(nn.Module):
             A = self.A_net(v).reshape((-1,)).tolist()
             w = self.w_net(v).reshape((-1,)).tolist()
             logt1 = self.logt1_net(v).reshape((-1,)).tolist()
-            n = self.n_net(v).reshape((-1,)).tolist()
             v = v.reshape((-1,)).tolist()
 
-        rows = zip(v, A, w, logt1, n)
-        cols = ["v", "A", "w", "logt1", "n"]
+        rows = zip(v, A, w, logt1)
+        cols = ["v", "A", "w", "logt1"]
         df = pd.DataFrame(rows, columns=cols)
 
         return df

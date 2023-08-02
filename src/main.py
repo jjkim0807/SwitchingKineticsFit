@@ -16,11 +16,12 @@ class Main:
         loss_plot_path: str = "output/loss_plot.png",
         itg_window=14,
         itg_samples=10000,
-        epochs: int = 1000,
+        epochs: int = 2000,
         batch_size: int = 30,
-        steplr_step_size: int = 50,
+        steplr_step_size: int = 100,
         steplr_gamma: float = 0.9,
         lr: float = 0.1,
+        n: int = 2,
     ):
         torch.set_default_dtype(torch.float64)
 
@@ -28,6 +29,7 @@ class Main:
 
         train = Train(
             ds,
+            n=n,
             lr=lr,
             itg_window=itg_window,
             itg_samples=itg_samples,

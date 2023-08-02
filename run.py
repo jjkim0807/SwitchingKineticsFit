@@ -1,5 +1,6 @@
 from src.main import Main
+import fire
 
 
 if __name__ == "__main__":
-    Main().run()
+    fire.Fire(Main)
